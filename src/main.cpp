@@ -77,7 +77,7 @@ void setup() {
 
   onWakeUp();
 
-  emgSensor.setupSPIFFS();
+  // emgSensor.setupSPIFFS();
 
   static uint32_t timeReadSD = millis();
 
@@ -93,7 +93,7 @@ void setup() {
       pixels.show();
       while (emgSensor.readTemp1()) {
         onWakeUp();
-        int16_t count = emgSensor.readSD();
+        int16_t count = emgSensor.readData();
         delay(1);
       }
     }

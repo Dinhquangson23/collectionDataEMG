@@ -3,7 +3,7 @@
 
 #include "BLEServiceManager.h"
 #include <Preferences.h>
-#include "EMGsensor.h"
+#include "EMGSensor.h"
 
 #define SIGNAL_UUID										"ebbb06e2-e254-4989-9555-a7fc9ca8f5c4"
 #define THRESHOLD_UUID								"39b2df5b-b7d4-48c6-afd2-e0095d4a999c"

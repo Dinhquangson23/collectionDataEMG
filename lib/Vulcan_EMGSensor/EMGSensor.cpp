@@ -285,7 +285,7 @@ void EMGSensor::checkTimeWrite() {
 void EMGSensor::readSensorSDBLE() {
 	// Serial.println("Wait time Read");
 	if (timeSetRead != 0) {
-		setupSD();
+		setupData();
 		timeRead = micros();
 		// Serial.printf("timeRead: %d\n", timeRead);
 		// Serial.printf("timeSetRead: %d\n", timeSetRead);
@@ -302,9 +302,10 @@ void EMGSensor::readSensorSDBLE() {
 				readSensor();
 				filterSensor();
 				// smoothSensor();
-				// writeData();
+
 				value[6] = nowTime - lasttime;
-				writeSD();
+				// writeSD();
+				writeData();
 				count++;
 				lasttime = nowTime;
 				// Serial.println(count++);
@@ -314,7 +315,7 @@ void EMGSensor::readSensorSDBLE() {
 		// timerWrite = NULL;
 		// Serial.println("End Timer");
 		
-		closeSD();
+		closeData();
 		Serial.println("End read sensor");
 		Serial.printf("Total number of samples: %d\n", count);
 		Serial.printf("Sampling frequency: %d\n",count/(timeSetRead/1000000));
@@ -463,6 +464,7 @@ int EMGSensor::readData() {
 	}
 	else {
 		clearData();
+		temp1 = false;
 		isStartSend = true;
 		return -1;
 	}

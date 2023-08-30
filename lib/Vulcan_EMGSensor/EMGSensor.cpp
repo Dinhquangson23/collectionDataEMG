@@ -284,6 +284,12 @@ uint8_t EMGSensor::readSensorBLE() {
 }
 
 void EMGSensor::setTimeReadSensor(uint8_t _timeRead) {
+	pixels.clear();		
+	pixels.show();
+	delay(300);
+	pixels.setPixelColor(0, pixels.Color(0, 255, 0));		
+	pixels.show();
+	// delay(300);
 	if (_timeRead == 0) {
 		setStateSensor(0);
 		Serial.println("End Read Sensor");
@@ -360,6 +366,7 @@ bool EMGSensor::isReady() {
 void EMGSensor::setupData() {
 	clearData();
 	dataPoint = (int16_t *)malloc(sizeof(int16_t) * 100000*(CHANELS + 1));
+	count = 0;
 }
 
 void EMGSensor::writeData() {
@@ -372,6 +379,21 @@ void EMGSensor::closeData() {
 	file.write((uint8_t*)dataPoint, lengthData * SIZE_ONE_PACKET_REV);
 	file.close();
 	Serial.println("Save done");
+	
+
+	pixels.setPixelColor(0, pixels.Color(0, 250, 0));		
+	pixels.show();
+	delay(1000);
+	pixels.clear();		
+	pixels.show();
+	delay(1000);
+	pixels.setPixelColor(0, pixels.Color(0, 250, 0));		
+	pixels.show();
+	delay(1000);
+	pixels.clear();		
+	pixels.show();
+	delay(1000);
+
 	esp_cpu_reset(1);
 	// for (uint16_t i = 0; i < lengthData; i++) {
 	// 	for (uint8_t j = 0; j < (CHANELS + 1); j++) {

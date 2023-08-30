@@ -15,7 +15,7 @@
 #define RING_SERVICE_UUID         "db1df223-4020-4c5a-930c-1989ea04991f"
 #define SENSOR_SERVICE_UUID       "efedd9eb-24a9-492a-b66a-ed8543ee096e"
 
-#define TIME_CONNECT   60000
+#define TIME_CONNECT   10000
 
 class BLERingManager: public BLEServerCallbacks {
   public:

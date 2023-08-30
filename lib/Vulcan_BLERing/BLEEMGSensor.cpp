@@ -16,20 +16,21 @@ BLEEMGSensor::BLEEMGSensor(BLEService* service, EMGSensor& pEMGSensor):
   addReadWriteNotify(SIGNAL_UUID, 
     authed([this](BLECharacteristic* p) {onReadSignal(p);}), 
     authed([this](BLECharacteristic* p) {onWriteSignal(p);}));
-  addReadWrite(THRESHOLD_UUID, 
-    authed([this](BLECharacteristic* p) {onReadThreshold(p);}), 
-    authed([this](BLECharacteristic* p) {onWriteThreshold(p);}));
 
-  addReadWrite(LOGIC_UUID, 
-    authed([this](BLECharacteristic* p) {onReadLogic(p);}), 
-    authed([this](BLECharacteristic* p) {onWriteLogic(p);}));
+  // addReadWrite(THRESHOLD_UUID, 
+  //   authed([this](BLECharacteristic* p) {onReadThreshold(p);}), 
+  //   authed([this](BLECharacteristic* p) {onWriteThreshold(p);}));
 
-  addReadWriteNotify(STATE_CONTROL_UUID, 
-    authed([this](BLECharacteristic* p) {onReadStateControl(p);}), 
-    doNothing);
-  addReadWriteNotify(BATTERY_UUID, 
-    authed([this](BLECharacteristic* p) {onReadBattery(p);}), 
-    authed([this](BLECharacteristic* p) {onWriteBattery(p);}));
+  // addReadWrite(LOGIC_UUID, 
+  //   authed([this](BLECharacteristic* p) {onReadLogic(p);}), 
+  //   authed([this](BLECharacteristic* p) {onWriteLogic(p);}));
+
+  // addReadWriteNotify(STATE_CONTROL_UUID, 
+  //   authed([this](BLECharacteristic* p) {onReadStateControl(p);}), 
+  //   doNothing);
+  // addReadWriteNotify(BATTERY_UUID, 
+  //   authed([this](BLECharacteristic* p) {onReadBattery(p);}), 
+  //   authed([this](BLECharacteristic* p) {onWriteBattery(p);}));
   // Increasing WDT timeout to 10s to fix esp_ota_begin issue
   // https://github.com/espressif/esp-idf/issues/1479
   // https://github.com/espressif/esp-idf/issues/578

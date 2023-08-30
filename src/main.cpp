@@ -77,11 +77,11 @@ void setup() {
 
   onWakeUp();
 
-  // emgSensor.setupSPIFFS();
+  emgSensor.setupSPIFFS();
 
   static uint32_t timeReadSD = millis();
 
-  while (millis() - timeReadSD < 10000) {
+  while (millis() - timeReadSD < 5000) {
     // Serial.printf("timeReadSD: %d\n", timeReadSD);
     pixels.setPixelColor(0, pixels.Color(0, 220, 220));
     pixels.show();
@@ -93,7 +93,7 @@ void setup() {
       pixels.show();
       while (emgSensor.readTemp1()) {
         onWakeUp();
-        int16_t count = emgSensor.readData();
+        int16_t count = emgSensor.readSD();
         delay(1);
       }
     }

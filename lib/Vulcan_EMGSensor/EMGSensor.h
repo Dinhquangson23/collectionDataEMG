@@ -31,7 +31,7 @@
 
 #define FILE_DATA_EMG							"/data.bin"
 
-#define FS 					250			// 880
+#define FS 					500			// 880
 #define TB 					1000000/FS	// time delay FS (micro/s)
 
 static portMUX_TYPE timerMuxRead = portMUX_INITIALIZER_UNLOCKED; 
@@ -102,7 +102,7 @@ class EMGSensor
 		KickFiltersRT<int16_t> ftHighSensor[8];
 		KickFiltersRT<int16_t> ftLowSensor[8];
 		KickFiltersRT<float> ftLowSensor1[8];
-		const float fs = 230;
+		const float fs = 500;
 
 		// State Ring
 		bool stateReady = false;
@@ -123,7 +123,7 @@ class EMGSensor
 		uint8_t chanels = 3; 							//number of channels
 
 		//Dynamic memory pointer
-		float *dataPoint;
+		int16_t *dataPoint;
 
 		//Variable to store sensor signal using flash memory
 		File file;

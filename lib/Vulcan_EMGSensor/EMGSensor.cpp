@@ -196,76 +196,9 @@ uint8_t EMGSensor::readSensorStreamBLE() {
 	return 2;
 }
 
-// bool EMGSensor::readTemp() {
-// 	return temp;
-// }
-
-// void EMGSensor::setTemp(bool _data) {
-// 	temp = _data;
-// }
-
 bool EMGSensor::readTemp1() {
 	return temp1;
 }
-// void EMGSensor::setTemp1(bool _data) {
-// 	temp1 = _data;
-// }
-
-// void EMGSensor:: readSensorSDBLE() {
-// 	// stateSensor:
-// 	// 0: don't read
-// 	// 1: firstRead
-// 	// 2: onRead
-// 	// 3: endRead
-
-// 	// _state return:
-// 	// 0: don't read
-// 	// 1: read raw signal
-// 	// 2: read filter signal
-
-// 	// if (stateSensor == 0) {
-// 	// 	return 0;
-// 	// }
-// 	if (timeSetRead != 0) {
-// 		setupSD();
-// 		timeRead = micros();
-// 		// Serial.printf("timeRead: %d\n", timeRead);
-// 		// Serial.printf("timeSetRead: %d\n", timeSetRead);
-
-// 		while (micros() - timeRead <= timeSetRead) {
-// 			static uint32_t lasttime = 0;
-// 			uint32_t nowTime = micros();
-// 			if (nowTime - lasttime > TB) {
-// 				// lasttime = micros();
-// 				readSensor();
-// 				filterSensor();
-// 				// smoothSensor();
-// 				// writeData();
-// 				value[6] = nowTime - lasttime;
-// 				writeSD();
-// 				count++;
-// 				lasttime = nowTime;
-// 				// Serial.println(count++);
-// 			}
-// 		}
-
-// 		closeSD();
-// 		Serial.println("End read sensor");
-// 		Serial.printf("Total number of samples: %d\n", count);
-// 		Serial.printf("Sampling frequency: %d\n",count/(timeSetRead/1000000));
-// 		uint32_t timeN = millis();
-// 		while (millis() - timeN < 10000) {
-// 			pixels.setPixelColor(0, pixels.Color(250, 0, 250));		
-// 			pixels.show();
-// 			delay(300);
-// 			pixels.clear();		
-// 			pixels.show();
-// 			delay(300);
-// 			timeN = millis();
-// 		}
-// 		timeSetRead = 0;
-// 	}
-// }
 
 void EMGSensor::checkTimeWrite() {
 	portENTER_CRITICAL_ISR(&timerMuxWrite);
@@ -286,6 +219,7 @@ void EMGSensor::readSensorSDBLE() {
 	// Serial.println("Wait time Read");
 	if (timeSetRead != 0) {
 		setupData();
+		// setupSD();
 		timeRead = micros();
 		// Serial.printf("timeRead: %d\n", timeRead);
 		// Serial.printf("timeSetRead: %d\n", timeSetRead);
@@ -293,29 +227,26 @@ void EMGSensor::readSensorSDBLE() {
 		// timerAlarmEnable(timerWrite);
 
 		while (micros() - timeRead <= timeSetRead) {
-			static uint32_t lasttime = 0;
+			static uint32_t lastTime = 0;
 			uint32_t nowTime = micros();
-			// if (nowTime - lasttime > TB) {value[6] = nowTime - lasttime;lasttime = nowTime;}
-			// Serial.println("RUN");
-			if (nowTime - lasttime > TB) {
-				// lasttime = micros();
+			if (nowTime - lastTime >= TB) {
 				readSensor();
 				filterSensor();
-				// smoothSensor();
-
-				value[6] = nowTime - lasttime;
+				value[6] = nowTime - lastTime;
 				// writeSD();
 				writeData();
 				count++;
-				lasttime = nowTime;
-				// Serial.println(count++);
+				lastTime = nowTime;
+				// Serial.println(value[6]);
 			}
+			// }
 		}
 		// timerEnd(timerWrite);
 		// timerWrite = NULL;
 		// Serial.println("End Timer");
 		
 		closeData();
+		// closeSD();
 		Serial.println("End read sensor");
 		Serial.printf("Total number of samples: %d\n", count);
 		Serial.printf("Sampling frequency: %d\n",count/(timeSetRead/1000000));
@@ -428,21 +359,26 @@ bool EMGSensor::isReady() {
 // Save data sensor by pointer
 void EMGSensor::setupData() {
 	clearData();
-	dataPoint = (float *)malloc(sizeof(float) * 100000*(CHANELS + 1));
+	dataPoint = (int16_t *)malloc(sizeof(int16_t) * 100000*(CHANELS + 1));
 }
 
 void EMGSensor::writeData() {
-	memcpy(&dataPoint[count * (CHANELS + 1)], (void*)data, sizeof(data));
+	memcpy(&dataPoint[count * (CHANELS + 1)], (void*)value, sizeof(value));
 }
 
 void EMGSensor::closeData() {
 	lengthData = --count;
-	for (uint16_t i = 0; i < lengthData; i++) {
-		for (uint8_t j = 0; j < (CHANELS + 1); j++) {
-			Serial.printf("%.2f \t", dataPoint[i * (CHANELS + 1) + j]);
-		}
-		Serial.println();
-	}
+	setupSD();
+	file.write((uint8_t*)dataPoint, lengthData * SIZE_ONE_PACKET_REV);
+	file.close();
+	Serial.println("Save done");
+	esp_cpu_reset(1);
+	// for (uint16_t i = 0; i < lengthData; i++) {
+	// 	for (uint8_t j = 0; j < (CHANELS + 1); j++) {
+	// 		Serial.printf("%d \t", dataPoint[i * (CHANELS + 1) + j]);
+	// 	}
+	// 	Serial.println();
+	// }
 }
 
 void EMGSensor::openData() {
@@ -482,12 +418,7 @@ void EMGSensor::setupSD() {
 }
 
 void EMGSensor::writeSD() {
-	// ets_printf("Write\n");
-	// memcpy((void *)buffer, (void *)data, SIZE_ONE_PACKET_REV);
-
-	// memcpy((void *)buffer, (void *)value, SIZE_ONE_PACKET_REV);
 	file.write((uint8_t*)value, SIZE_ONE_PACKET_REV);
-	
 }
 
 void EMGSensor::closeSD() {

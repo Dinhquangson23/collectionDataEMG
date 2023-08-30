@@ -30,17 +30,17 @@ static esp_ble_adv_data_t ADVERTISING_CONFIG = {
 
 BLERing::BLERing(BLEService* service, RingState& pRingState): 
     BLEServiceManager(service), ringState(pRingState) {
-  addReadWriteNotify(OTA_UUID,
-    authed([this](BLECharacteristic* p) {onReadOTA(p);}),
-    authed([this](BLECharacteristic* p) {onWriteOTA(p);}));
+  // addReadWriteNotify(OTA_UUID,
+  //   authed([this](BLECharacteristic* p) {onReadOTA(p);}),
+  //   authed([this](BLECharacteristic* p) {onWriteOTA(p);}));
 
   addReadWrite(NAME_CHAR_UUID, 
     authed([this](BLECharacteristic* p) {onReadName(p);}), 
     authed([this](BLECharacteristic* p) {onWriteName(p);}));
 
-  addReadWrite(HARDWARE_CHAR_UUID, 
-    authed([this](BLECharacteristic* p) {onReadHardware(p);}), 
-    authed([this](BLECharacteristic* p) {onWriteHardware(p);}));
+  // addReadWrite(HARDWARE_CHAR_UUID, 
+  //   authed([this](BLECharacteristic* p) {onReadHardware(p);}), 
+  //   authed([this](BLECharacteristic* p) {onWriteHardware(p);}));
   
   // Increasing WDT timeout to 10s to fix esp_ota_begin issue
   // https://github.com/espressif/esp-idf/issues/1479

@@ -50,7 +50,7 @@ BLERing::BLERing(BLEService* service, RingState& pRingState):
 
 void BLERing::begin() {
   BLEServiceManager::begin();
-  SPIFFS.begin(true);
+  // SPIFFS.begin(true);
 
   updateInProgress = false;
   

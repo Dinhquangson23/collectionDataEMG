@@ -24,7 +24,7 @@
 #define MIC_EN        7
 #define VIBRATOR_PIN  27
 
-#define TIME_WAKEUP   3000
+#define TIME_WAKEUP   1000
 #define BATTERY_MAX   4150
 #define BATTERY_MIN   3200
 
@@ -53,7 +53,7 @@ void onCharger();
 
 void setup() {
   setCpuFrequencyMhz(80);
-  Serial.begin(115200); 
+  Serial.begin(500000); 
 
   gpio_deep_sleep_hold_dis();
 
@@ -91,11 +91,13 @@ void setup() {
     if (!digitalRead(POWER_PIN)) {
       pixels.setPixelColor(0, pixels.Color(230, 200, 0));
       pixels.show();
-      while (emgSensor.readTemp1()) {
-        onWakeUp();
-        int16_t count = emgSensor.readSD();
-        delay(1);
-      }
+      // while (emgSensor.readTemp1()) {
+      //   onWakeUp();
+      //   int16_t count = emgSensor.readSD();
+      //   delay(1);
+      // }
+      emgSensor.printDataSD();
+      // emgSensor.formatSPIFFS();
     }
     delay(100);
   }
@@ -106,8 +108,8 @@ void setup() {
   spiMCP3208.beginTransaction(settings);
 
   ringState.begin();
-  ble.begin();
   emgSensor.begin();
+  ble.begin();
   Serial.println();
 
   stateSleep = !ble.waitConnect();

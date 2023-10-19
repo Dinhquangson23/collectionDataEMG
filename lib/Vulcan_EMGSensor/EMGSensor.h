@@ -29,9 +29,9 @@
 #define NUMBER_PACKET_REV			10							//10 packet/send
 #define LENGTH_DATA_REV				NUMBER_PACKET_REV * SIZE_ONE_PACKET_REV // <600 byte
 
-#define FILE_DATA_EMG							"/data.bin"
+#define FILE_DATA_EMG							"/data.txt"
 
-#define FS 					500			// 880
+#define FS 					1000			// 880
 #define TB 					1000000/FS	// time delay FS (micro/s)
 
 static portMUX_TYPE timerMuxRead = portMUX_INITIALIZER_UNLOCKED; 
@@ -43,6 +43,7 @@ class EMGSensor
 		// EMGSensor(MCP3464 &_adc, Adafruit_NeoPixel &_pixels);
 		EMGSensor(MCP3208 &_adc, Adafruit_NeoPixel &_pixels);
 		void setupSPIFFS();
+		void formatSPIFFS();
 		void begin();
 		int8_t sync();
 		uint8_t readSensorStreamBLE();
@@ -68,6 +69,7 @@ class EMGSensor
 
 		int readData();
 		int readSD();
+		void printDataSD();
 
 		uint8_t buffer[SIZE_ONE_PACKET_REV];
 		uint8_t rev[LENGTH_DATA_REV]; 			
@@ -88,8 +90,6 @@ class EMGSensor
 		bool temp1 = true;
 
 		hw_timer_t* timerRead = NULL; //khơi tạo timer
-		
-
 		hw_timer_t* timerWrite = NULL; //khơi tạo timer
 		
 
@@ -102,7 +102,7 @@ class EMGSensor
 		KickFiltersRT<int16_t> ftHighSensor[8];
 		KickFiltersRT<int16_t> ftLowSensor[8];
 		KickFiltersRT<float> ftLowSensor1[8];
-		const float fs = 500;
+		const float fs = 1000;
 
 		// State Ring
 		bool stateReady = false;

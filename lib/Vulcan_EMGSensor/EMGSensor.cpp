@@ -14,10 +14,19 @@ EMGSensor::EMGSensor(MCP3208 &_adc, Adafruit_NeoPixel &_pixels):
 
 void EMGSensor::setupSPIFFS() {
 	SPIFFS.begin(true);
+	Serial.printf("Total byte: %d\n", SPIFFS.totalBytes());
+	Serial.printf("Used byte: %d\n", SPIFFS.usedBytes());
+}
+
+void EMGSensor::formatSPIFFS() {
+	Serial.println("SPIFFS formating... \n");
+	Serial.printf("Format SPIFFS: %d\n", SPIFFS.format());
+	Serial.printf("Total byte: %d\n", SPIFFS.totalBytes());
+	Serial.printf("Used byte: %d\n", SPIFFS.usedBytes());
+
 }
 
 void EMGSensor::begin() {
-
 	pointerToClass = this;
 	timerWrite = timerBegin(0, 80, true);
 	timerAttachInterrupt(timerWrite, outsideTimerWrite, true);
@@ -218,6 +227,8 @@ void EMGSensor::checkTimeWrite() {
 void EMGSensor::readSensorSDBLE() {
 	// Serial.println("Wait time Read");
 	if (timeSetRead != 0) {
+		pixels.setPixelColor(0, pixels.Color(250, 0, 0));		
+		pixels.show();
 		setupData();
 		// setupSD();
 		timeRead = micros();
@@ -241,9 +252,11 @@ void EMGSensor::readSensorSDBLE() {
 			}
 			// }
 		}
+
 		// timerEnd(timerWrite);
 		// timerWrite = NULL;
-		// Serial.println("End Timer");
+		Serial.println("End read sensor");
+		Serial.printf("Total number of samples: %d\n", count);
 		
 		closeData();
 		// closeSD();
@@ -375,24 +388,70 @@ void EMGSensor::writeData() {
 
 void EMGSensor::closeData() {
 	lengthData = --count;
+
+	// for (uint16_t i = 0; i < lengthData; i++) {
+	// 	for (uint8_t j = 0; j < (CHANELS + 1); j++) {
+	// 		Serial.printf("%d \t", dataPoint[i * (CHANELS + 1) + j]);
+	// 	}
+	// 	Serial.println();
+	// }
+
+	pixels.setPixelColor(0, pixels.Color(0, 0, 255));		
+	pixels.show();
+
 	setupSD();
-	file.write((uint8_t*)dataPoint, lengthData * SIZE_ONE_PACKET_REV);
-	file.close();
-	Serial.println("Save done");
+	// uint16_t buff = 10;
+	// uint8_t excess = 0;
+
+	// uint32_t packetNumber = lengthData / 10;
+	// excess = lengthData % 10;
+
+	uint32_t packetSaved = 0;
+	uint16_t numberPacketRev = 1000;
+	uint32_t lastTimeSaveSD = millis();
+
+	// while (packetSaved < lengthData)
+	// {
+	// 	uint16_t buff = lengthData - packetSaved;
+	// 	buff = buff < numberPacketRev ? buff : numberPacketRev;
+	// 	file.write((uint8_t*)&dataPoint[packetSaved], buff * SIZE_ONE_PACKET_REV);
+	// 	packetSaved += buff;
+	// 	Serial.printf("buff: %d\t", buff);
+	// 	Serial.printf("packetSaved: %d\n", packetSaved);
+	// }
 	
+
+	// for (uint32_t i = 0; i < packetNumber; i++) {
+	// 	file.write((uint8_t*)&dataPoint[i * (CHANELS + 1)], SIZE_ONE_PACKET_REV);
+	// }
+
+
+	// for (uint32_t i = 0; i < lengthData; i++) {
+	// 	file.write((uint8_t*)&dataPoint[i * (CHANELS + 1)], SIZE_ONE_PACKET_REV);
+	// }
+
+	file.write((uint8_t*)dataPoint, lengthData * SIZE_ONE_PACKET_REV);
+
+	Serial.printf("Time save: %d\n", millis() - lastTimeSaveSD);
+
+	Serial.printf("file size: %d\n", file.size());
+	file.close();
+	// SPIFFS.end();
+
+	Serial.println("Save done");
 
 	pixels.setPixelColor(0, pixels.Color(0, 250, 0));		
 	pixels.show();
-	delay(1000);
+	delay(500);
 	pixels.clear();		
 	pixels.show();
-	delay(1000);
+	delay(500);
 	pixels.setPixelColor(0, pixels.Color(0, 250, 0));		
 	pixels.show();
-	delay(1000);
+	delay(500);
 	pixels.clear();		
 	pixels.show();
-	delay(1000);
+	delay(500);
 
 	esp_cpu_reset(1);
 	// for (uint16_t i = 0; i < lengthData; i++) {
@@ -435,8 +494,12 @@ void EMGSensor::clearData() {
 // Save data sensor by SD
 void EMGSensor::setupSD() {
 	file.close();
-	SPIFFS.remove(FILE_DATA_EMG);
+	formatSPIFFS();
+	// SPIFFS.open(FILE_DATA_EMG, FILE_APPEND);
+	// Serial.printf("remove file: %d\n", SPIFFS.remove(FILE_DATA_EMG));
+
 	file = SPIFFS.open(FILE_DATA_EMG, FILE_APPEND);
+	// Serial.printf("setBufferSize file: %d\n", 	file.setBufferSize(10240));
 }
 
 void EMGSensor::writeSD() {
@@ -483,4 +546,21 @@ int EMGSensor::readSD() {
 		isStartSend = true;
 		return -1;
 	}
+}
+
+void EMGSensor::printDataSD() {
+	uint32_t lastTimeRead = millis();
+	openSD();
+	int16_t buff[CHANELS + 1];
+	while (file.available())
+	{
+		file.read((uint8_t*)buff, SIZE_ONE_PACKET_REV);
+		for (size_t i = 0; i < CHANELS + 1; i++)
+		{
+			Serial.printf("%d\t", buff[i]);
+		}
+		Serial.println();
+		
+	}
+	Serial.printf("Time Read: %d\n", millis() - lastTimeRead);
 }
